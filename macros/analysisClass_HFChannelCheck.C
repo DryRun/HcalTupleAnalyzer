@@ -86,7 +86,17 @@ void analysisClass::loop(){
   tuple_tree -> fChain -> SetBranchStatus("HFDigiFiber", kTRUE);
   tuple_tree -> fChain -> SetBranchStatus("HFDigiFiberChan", kTRUE);
   tuple_tree -> fChain -> SetBranchStatus("HFDigiRaw", kTRUE);
-  
+  tuple_tree->fChain->SetBranchStatus("HFRecHitEnergy", 1);
+  tuple_tree->fChain->SetBranchStatus("HFRecHitEta", 1);
+  tuple_tree->fChain->SetBranchStatus("HFRecHitPhi", 1);
+  tuple_tree->fChain->SetBranchStatus("HFRecHitTime", 1);
+  tuple_tree->fChain->SetBranchStatus("HFRecHitAux", 1);
+  tuple_tree->fChain->SetBranchStatus("HFRecHitDepth", 1);
+  tuple_tree->fChain->SetBranchStatus("HFRecHitFlags", 1);
+  tuple_tree->fChain->SetBranchStatus("HFRecHitHPDid", 1);
+  tuple_tree->fChain->SetBranchStatus("HFRecHitIEta", 1);
+  tuple_tree->fChain->SetBranchStatus("HFRecHitIPhi", 1);
+  tuple_tree->fChain->SetBranchStatus("HFRecHitRBXid", 1);
   //--------------------------------------------------------------------------------
   // Declare and load RBX map
   //--------------------------------------------------------------------------------
@@ -118,6 +128,8 @@ void analysisClass::loop(){
   std::map<int, TH2F*> h_hf_digi_average_charge34;
   std::map<int, TH2F*> h_hf_digi_average_isSignal;
   std::map<int, TH2F*> h_hf_digi_average_maxADC;
+  std::map<int, TH2F*> h_hf_rechit_average_energy;
+  std::map<int, TH2F*> h_hf_rechit_average_time;
   std::map<int, std::map<int, TH2F*> > h_hf_digi_average_fc;
   std::map<int, std::map<int, TH2F*> > h_hf_digi_average_adc;
   std::map<int, std::map<int, TH2F*> > h_hf_digi_average_dv;
@@ -126,7 +138,11 @@ void analysisClass::loop(){
 
   for (int depth = 1; depth <= 2; ++depth) {
     char hname[100];
-    
+    sprintf(hname, "h_hf_rechit_average_energy_d%d", depth);
+    h_hf_rechit_average_energy[depth] = makeTH2F(hname, 85, -42.5, 42.5, 72, 0.5, 72.5)
+    sprintf(hname, "h_hf_rechit_average_time_d%d", depth);
+    h_hf_rechit_average_time[depth] = makeTH2F(hname, 85, -42.5, 42.5, 72, 0.5, 72.5)
+
     sprintf(hname, "h_hf_digi_average_readings_d%d", depth);
     h_hf_digi_average_readings[depth] = makeTH2F(hname, 85, -42.5, 42.5, 72, 0.5, 72.5);
 

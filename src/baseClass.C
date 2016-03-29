@@ -128,6 +128,17 @@ TH2F* baseClass::makeTH2F(const char * name,const char * title, int nbinsx, floa
   return hist;
 }
 
+TH3F* baseClass::makeTH3F(const char * name, int nbinsx, float xmin, float xmax, int nbinsy, float ymin, float ymax, int nbinsz, float zmin, float zmax){
+  TH3F* hist = new TH3F(name, name, nbinsx, xmin, xmax, nbinsy, ymin, ymax, nbinsz, zmin, zmax );
+  m_objects.push_back(hist);
+  return hist;
+}
+TH3F* baseClass::makeTH3F(const char * name, const char * title, int nbinsx, float xmin, float xmax, int nbinsy, float ymin, float ymax, int nbinsz, float zmin, float zmax){
+  TH3F* hist = new TH3F(name, title, nbinsx, xmin, xmax, nbinsy, ymin, ymax, nbinsz, zmin, zmax );
+  m_objects.push_back(hist);
+  return hist;
+}
+
 
 TGraph* baseClass::makeTGraph(int n, const double* x, const double* y){
   TGraph* graph = new TGraph(n,x,y);

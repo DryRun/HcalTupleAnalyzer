@@ -109,6 +109,7 @@ void analysisClass::loop(){
   TH2F * h_vme_vs_utca_adc   = makeTH2F ("vme_vs_utca_adc"  , 129,  -1.5, 127.5, 129, -1.5, 127.5 );
   TH2F * h_occ_utca_bad_size = makeTH2F ("occ_utca_bad_size", 85, -42.5, 42.5, 72,  0.5, 72.5 );
   TH2F * h_occ_utca_mismatch = makeTH2F ("occ_utca_mismatch", 85, -42.5, 42.5, 72,  0.5, 72.5 );
+  TH2F * h_utca_average_adcTotal = makeTH2F ("utca_average_adcTotal", 85, -42.5, 42.5, 72,  0.5, 72.5 );
   
   //--------------------------------------------------------------------------------
   // Loop
@@ -137,18 +138,21 @@ void analysisClass::loop(){
       HFDigi vmeDigi ( *vmeDigis, vme_index );
 
       int vme_size = vmeDigi.size();
+
+      h_utca_average_adcTotal->Fill(utcaDigi.ieta(), utcaDigi.iphi(), utcaDigi.adcTotal());
       
       if ( utca_size == 10 ) { 
-	for (int vmeTS = 0; vmeTS < vme_size ; ++vmeTS){
-	  int utcaTS = vmeTS + 2;
-	  int vmeADC = vmeDigi.adc(vmeTS);
-	  int utcaADC = ( utcaTS > utca_size ) ? -1 : utcaDigi.adc(utcaTS);
-	  h_vme_vs_utca_adc -> Fill ( vmeADC, utcaADC ) ;
-	  if ( vmeADC != utcaADC ) {
-	    h_occ_utca_mismatch -> Fill ( utcaDigi.ieta(), utcaDigi.iphi() );
-	  }
-	}
+      	for (int vmeTS = 0; vmeTS < vme_size ; ++vmeTS){
+      	  int utcaTS = vmeTS + 2;
+      	  int vmeADC = vmeDigi.adc(vmeTS);
+      	  int utcaADC = ( utcaTS > utca_size ) ? -1 : utcaDigi.adc(utcaTS);
+      	  h_vme_vs_utca_adc -> Fill ( vmeADC, utcaADC ) ;
+      	  if ( vmeADC != utcaADC ) {
+      	    h_occ_utca_mismatch -> Fill ( utcaDigi.ieta(), utcaDigi.iphi() );
+      	  }
+      	}
       }
     }
-  }
+  } // End loop over events
+  h_utca_average_adcTotal->Scale(1. / n_events);
 }

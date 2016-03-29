@@ -13,6 +13,7 @@
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH3F.h"
 #include "TH1.h"
 #include "TGraph.h"
 
@@ -37,6 +38,8 @@ class baseClass {
   TH1F* makeTH1F(const char * name, const char * title, int nbins , float xmin, float xmax);
   TH2F* makeTH2F(const char * name, int nbinsx, float xmin, float xmax, int nbinsy, float ymin, float ymax);
   TH2F* makeTH2F(const char * name, const char * title, int nbinsx, float xmin, float xmax, int nbinsy, float ymin, float ymax);
+  TH3F* makeTH3F(const char * name, int nbinsx, float xmin, float xmax, int nbinsy, float ymin, float ymax, int nbinsz, float zmin, float zmax);
+  TH3F* makeTH3F(const char * name, const char * title, int nbinsx, float xmin, float xmax, int nbinsy, float ymin, float ymax, int nbinsz, float zmin, float zmax);
   TGraph* makeTGraph(int n, const double* x, const double* y);
   TGraph* makeTGraph();
   TGraph* makeTGraph(int n);
