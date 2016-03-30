@@ -125,17 +125,17 @@ void analysisClass::loop(){
   //--------------------------------------------------------------------------------
 
   TH2F * h_utca_average_adcTotal = makeTH2F ("utca_average_adcTotal", 85, -42.5, 42.5, 72,  0.5, 72.5 );
-  std::map<int, TH2F*> h_utca_event_adcTotal_index;
-  std::map<int, TH2F*> h_utca_event_adcTotal_actual;
-  std::map<int, TH3F*> h_utca_event_adcSlices_index;
+  std::map<int, TH3F*> h_utca_event_adcTotal_index;
+  std::map<int, TH3F*> h_utca_event_adcTotal_actual;
+  std::map<int, std::map<int, TH3F*> > h_utca_event_adcSlices_index;
   TH1F* h_utca_adc100 = makeTH1F("utca_adc100", 6121, -0.5, 6120.5);
   TH1F* h_utca_adc200 = makeTH1F("utca_adc200", 6121, -0.5, 6120.5);
   std::vector<int> events_30adc100;
   std::vector<int> events_30adc200;
 
   // HF plots
-  std::map<int, TH2F*> h_hf_event_adcTotal_index;
-  std::map<int, TH3F*> h_hf_event_adcSlices_index;
+  std::map<int, TH3F*> h_hf_event_adcTotal_index;
+  std::map<int, std::map<int, TH3F*> > h_hf_event_adcSlices_index;
 
   //--------------------------------------------------------------------------------
   // Loop
@@ -170,24 +170,32 @@ void analysisClass::loop(){
       TString hname = "utca_event_";
       hname += tuple_tree->event;
       hname += "_adcTotal_index";
-      h_utca_event_adcTotal_index[i] = makeTH2F(hname, 85, -42.5, 42.5, 72,  0.5, 72.5 );
+      h_utca_event_adcTotal_index[i] = makeTH3F(hname, 85, -42.5, 42.5, 72,  0.5, 72.5, 3, 0.5, 3.5 );
 
       hname = "utca_event_";
       hname += tuple_tree->event;
       hname += "_adcTotal_actual";
-      h_utca_event_adcTotal_actual[i] = makeTH2F(hname, 85 * 4, -5., 5., 72 * 5,  -3.5, 3.5);
+      h_utca_event_adcTotal_actual[i] = makeTH3F(hname, 85 * 4, -5., 5., 72 * 5,  -3.5, 3.5, 3, 0.5, 3.5);
 
       hname = "utca_event_";
       hname += tuple_tree->event;
-      hname += "_adcSlices_index";
-      h_utca_event_adcSlices_index[i] = makeTH3F(hname, 85, -42.5, 42.5, 72,  0.5, 72.5, 4, -0.5, 3.5);
+      hname += "_adcSlices_index_depth1";
+      h_utca_event_adcSlices_index[i][1] = makeTH3F(hname, 85, -42.5, 42.5, 72,  0.5, 72.5, 4, -0.5, 3.5);
+      hname = "utca_event_";
+      hname += tuple_tree->event;
+      hname += "_adcSlices_index_depth2";
+      h_utca_event_adcSlices_index[i][2] = makeTH3F(hname, 85, -42.5, 42.5, 72,  0.5, 72.5, 4, -0.5, 3.5);
+      hname = "utca_event_";
+      hname += tuple_tree->event;
+      hname += "_adcSlices_index_depth3";
+      h_utca_event_adcSlices_index[i][3] = makeTH3F(hname, 85, -42.5, 42.5, 72,  0.5, 72.5, 4, -0.5, 3.5);
 
       for (int i_digi = 0; i_digi < n_hbhe_digis; ++i_digi ) {
         HBHEDigi this_digi = hbhe_digis -> GetConstituent<HBHEDigi>(i_digi);
-        h_utca_event_adcTotal_index[i]->Fill(this_digi.ieta(), this_digi.iphi(), this_digi.adcTotal());
-        h_utca_event_adcTotal_actual[i]->Fill(this_digi.eta(), this_digi.phi(), this_digi.adcTotal());
+        h_utca_event_adcTotal_index[i]->Fill(this_digi.ieta(), this_digi.iphi(), this_digi.depth(), this_digi.adcTotal());
+        h_utca_event_adcTotal_actual[i]->Fill(this_digi.eta(), this_digi.phi(), this_digi.depth(), this_digi.adcTotal());
         for (int i_slice = 0; i_slice < 4; ++i_slice) {
-          h_utca_event_adcSlices_index[i]->Fill(this_digi.ieta(), this_digi.iphi(), i_slice, this_digi.adc(i_slice));
+          h_utca_event_adcSlices_index[i][this_digi.depth()]->Fill(this_digi.ieta(), this_digi.iphi(), i_slice, this_digi.adc(i_slice));
         }
       }
     }
@@ -200,21 +208,25 @@ void analysisClass::loop(){
       TString hname = "hf_event_";
       hname += tuple_tree->event;
       hname += "_adcTotal_index";
-      h_hf_event_adcTotal_index[i] = makeTH2F(hname, 85, -42.5, 42.5, 72,  0.5, 72.5 );
+      h_hf_event_adcTotal_index[i] = makeTH3F(hname, 85, -42.5, 42.5, 72,  0.5, 72.5, 2, 0.5, 2.5 );
 
       hname = "hf_event_";
       hname += tuple_tree->event;
-      hname += "_adcSlices_index";
-      h_hf_event_adcSlices_index[i] = makeTH3F(hname, 85, -42.5, 42.5, 72,  0.5, 72.5, 4, -0.5, 3.5);
+      hname += "_adcSlices_index_depth1";
+      h_hf_event_adcSlices_index[i][1] = makeTH3F(hname, 85, -42.5, 42.5, 72,  0.5, 72.5, 4, -0.5, 3.5);
+      hname = "hf_event_";
+      hname += tuple_tree->event;
+      hname += "_adcSlices_index_depth2";
+      h_hf_event_adcSlices_index[i][2] = makeTH3F(hname, 85, -42.5, 42.5, 72,  0.5, 72.5, 4, -0.5, 3.5);
 
       CollectionPtr hf_digis  (new Collection(*tuple_tree, tuple_tree -> HFDigiIEta -> size()));
       int n_hf_digis = hf_digis -> GetSize();
 
       for (int i_digi = 0; i_digi < n_hf_digis; ++i_digi ) {
         HFDigi this_digi = hf_digis -> GetConstituent<HFDigi>(i_digi);
-        h_hf_event_adcTotal_index[i]->Fill(this_digi.ieta(), this_digi.iphi(), this_digi.adcTotal());
+        h_hf_event_adcTotal_index[i]->Fill(this_digi.ieta(), this_digi.iphi(), this_digi.depth(), this_digi.adcTotal());
         for (int i_slice = 0; i_slice < 4; ++i_slice) {
-          h_hf_event_adcSlices_index[i]->Fill(this_digi.ieta(), this_digi.iphi(), i_slice, this_digi.adc(i_slice));
+          h_hf_event_adcSlices_index[i][this_digi.depth()]->Fill(this_digi.ieta(), this_digi.iphi(), i_slice, this_digi.adc(i_slice));
         }
       }
     }

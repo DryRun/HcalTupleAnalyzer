@@ -136,12 +136,18 @@ void analysisClass::loop(){
   std::map<int, std::map<int, TH2F*> > h_hf_digi_average_er;
   std::map<int, std::map<int, TH2F*> > h_hf_digi_average_capid;
 
+  // Random event histograms. Map is depth : event#
+  std::map<int, std::map<int, TH2F*> > h_hf_digi_event_adcTotal;
+  std::map<int, std::map<int, TH1F*> > h_hf_digi_event_adcSlices_chan29_67;
+  std::map<int, std::map<int, TH1F*> > h_hf_digi_event_adcSlices_chan29_65;
+  std::map<int, std::map<int, TH1F*> > h_hf_digi_event_adcSlices_chan29_69;
+  std::map<int, std::map<int, TH1F*> > h_hf_digi_event_adcSlices_chan30_67;
   for (int depth = 1; depth <= 2; ++depth) {
     char hname[100];
     sprintf(hname, "h_hf_rechit_average_energy_d%d", depth);
-    h_hf_rechit_average_energy[depth] = makeTH2F(hname, 85, -42.5, 42.5, 72, 0.5, 72.5)
+    h_hf_rechit_average_energy[depth] = makeTH2F(hname, 85, -42.5, 42.5, 72, 0.5, 72.5);
     sprintf(hname, "h_hf_rechit_average_time_d%d", depth);
-    h_hf_rechit_average_time[depth] = makeTH2F(hname, 85, -42.5, 42.5, 72, 0.5, 72.5)
+    h_hf_rechit_average_time[depth] = makeTH2F(hname, 85, -42.5, 42.5, 72, 0.5, 72.5);
 
     sprintf(hname, "h_hf_digi_average_readings_d%d", depth);
     h_hf_digi_average_readings[depth] = makeTH2F(hname, 85, -42.5, 42.5, 72, 0.5, 72.5);
@@ -200,6 +206,7 @@ void analysisClass::loop(){
 
       sprintf(hname, "h_hf_digi_average_er_d%d_ts%d", depth, ts);
       h_hf_digi_average_er[depth][ts] = makeTH2F(hname, 85, -42.5, 42.5, 72, 0.5, 72.5);
+      ;
 
       sprintf(hname, "h_hf_digi_average_capid_d%d_ts%d", depth, ts);
       h_hf_digi_average_capid[depth][ts] = makeTH2F(hname, 85, -42.5, 42.5, 72, 0.5, 72.5);
@@ -212,10 +219,32 @@ void analysisClass::loop(){
   //--------------------------------------------------------------------------------
 
   for (int i = 0; i < n_events; ++i) {
-    
     tuple_tree -> GetEntry(i);
     if ( (i + 1) % 100 == 0 ) std::cout << "Processing event " << i + 1 << "/" << n_events << std::endl;
     
+    // Random event histograms: want 100 of them.
+    if (i % (TMath::FloorNint(n_events / 100)) == 0) {
+      for (int depth = 1; depth <= 2; ++depth) {
+        char hname[100];
+        sprintf(hname, "h_hf_digi_event_adcTotal_d%d_event%d", depth, tuple_tree->event);
+        h_hf_digi_event_adcTotal[depth][tuple_tree->event] = makeTH2F(hname, 85, -42.5, 42.5, 72, 0.5, 72.5);
+
+        sprintf(hname, "h_hf_digi_event_adcSlices_chan29_67_d%d_event%d", depth, tuple_tree->event);
+        h_hf_digi_event_adcSlices_chan29_67[depth][tuple_tree->event] = makeTH1F(hname, 4, -0.5, 3.5);
+
+
+        sprintf(hname, "h_hf_digi_event_adcSlices_chan30_67_d%d_event%d", depth, tuple_tree->event);
+        h_hf_digi_event_adcSlices_chan30_67[depth][tuple_tree->event] = makeTH1F(hname, 4, -0.5, 3.5);
+
+        sprintf(hname, "h_hf_digi_event_adcSlices_chan29_65_d%d_event%d", depth, tuple_tree->event);
+        h_hf_digi_event_adcSlices_chan29_65[depth][tuple_tree->event] = makeTH1F(hname, 4, -0.5, 3.5);
+
+        sprintf(hname, "h_hf_digi_event_adcSlices_chan29_69_d%d_event%d", depth, tuple_tree->event);
+        h_hf_digi_event_adcSlices_chan29_69[depth][tuple_tree->event] = makeTH1F(hname, 4, -0.5, 3.5);
+      }
+    }
+
+
     CollectionPtr hfDigis (new Collection(*tuple_tree, tuple_tree -> HFDigiIEta -> size()));
     int n_digis = hfDigis->GetSize();
     for (int i_digi = 0; i_digi < n_digis; ++i_digi) {
@@ -244,6 +273,30 @@ void analysisClass::loop(){
         h_hf_digi_average_dv[depth][ts]->Fill(ieta, iphi, this_digi.dv(ts));
         h_hf_digi_average_er[depth][ts]->Fill(ieta, iphi, this_digi.er(ts));
         h_hf_digi_average_capid[depth][ts]->Fill(ieta, iphi, this_digi.capid(ts));
+      }
+
+      if (i % (TMath::FloorNint(n_events / 100)) == 0) {
+        h_hf_digi_event_adcTotal[depth][tuple_tree->event]->Fill(ieta, iphi, this_digi.adcTotal());
+        if (ieta == 29 && iphi == 67) {
+          for (int ts = 0; ts <= 3; ++ts) {
+            h_hf_digi_event_adcSlices_chan29_67[depth][tuple_tree->event]->Fill(ts, this_digi.adc(ts));
+          }
+        }
+        if (ieta == 30 && iphi == 67) {
+          for (int ts = 0; ts <= 3; ++ts) {
+            h_hf_digi_event_adcSlices_chan30_67[depth][tuple_tree->event]->Fill(ts, this_digi.adc(ts));
+          }
+        }
+        if (ieta == 29 && iphi == 65) {
+          for (int ts = 0; ts <= 3; ++ts) {
+            h_hf_digi_event_adcSlices_chan29_65[depth][tuple_tree->event]->Fill(ts, this_digi.adc(ts));
+          }
+        }
+        if (ieta == 29 && iphi == 69) {
+          for (int ts = 0; ts <= 3; ++ts) {
+            h_hf_digi_event_adcSlices_chan29_69[depth][tuple_tree->event]->Fill(ts, this_digi.adc(ts));
+          }
+        }
       }
     }
   } // End loop over events
