@@ -174,7 +174,7 @@ void analysisClass::loop(){
 		h_utca_adc200->Fill(n_digis_adc200);
 
 		// Record more info for events with many hot channels
-		if (n_digis_adc50 > 15) {
+		if (n_digis_adc50 > 15 || i % TMath::FloorNint(n_events / 200.) == 0) {
 			events_15adc50.push_back(tuple_tree->event);
 			TString hname = "utca_event_";
 			hname += tuple_tree->event;
