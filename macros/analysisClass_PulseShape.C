@@ -16,7 +16,7 @@ void analysisClass::loop(){
   // Declare HCAL tree(s)
   //--------------------------------------------------------------------------------
 
-  HcalTupleTree * tuple_tree = getTree<HcalTupleTree>("skim_tree");
+  HcalTupleTree * tuple_tree = getTree<HcalTupleTree>("tuple_tree");
   int n_events = tuple_tree -> fChain -> GetEntries();
   std::cout << "n events = " << n_events << std::endl;
   
@@ -69,11 +69,15 @@ void analysisClass::loop(){
     for (int iHBHEDigi = 0; iHBHEDigi < nHBHEDigis; ++iHBHEDigi){
       HBHEDigi hbheDigi = hbheDigis -> GetConstituent<HBHEDigi>(iHBHEDigi);
 
-      if ( hbheDigi.energy() < 5.0 ) continue;
+      //if ( hbheDigi.energy() < 5.0 ) continue;
 
-      if ( abs(hbheDigi.ieta()) > 12 ) continue;
+      //if ( abs(hbheDigi.ieta()) > 12 ) continue;
 
-      if ( hbheDigi.fc(3) < 50 ) continue;
+      double fc_total = 0;
+      for (int its = 0; its != 10; its++){
+        fc_total += hbheDigi.fc(its);
+      }
+      if ( fc_total < 30 ) continue;
 
       sprintf(histName,"PulseShape_%d_%d_%d_%d",runNumber,lumiSection,eventNumber,iHBHEDigi);
       sprintf(title," %d %d %d %d  ; TS ; FC",runNumber,lumiSection,eventNumber,iHBHEDigi);
